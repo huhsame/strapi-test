@@ -37,6 +37,7 @@ jobs:
         DATABASE_FILENAME: ${{ secrets.DATABASE_FILENAME }}
         JWT_SECRET: ${{ secrets.JWT_SECRET }}
         EC2_SERVER_IP: ${{ secrets.EC2_SERVER_IP }}
+        CHANGED: ${{ env.CHANGED }}
       run: |
         ssh -o StrictHostKeyChecking=no -i private_key.pem ubuntu@${EC2_SERVER_IP} "
         cd /home/ubuntu/strapi-test &&
@@ -52,5 +53,6 @@ jobs:
         echo 'EC2_SERVER_IP=${EC2_SERVER_IP}' >> .env &&
         # Conditionally run npm install if package.json or package-lock.json has changed
         if [ \"$CHANGED\" == \"true\" ]; then npm install; fi &&
-        npm run build &&
+        # Conditionally run npm run build if package.json or package-lock.json has changed
+        if [ \"$CHANGED\" == \"true\" ]; then npm run build; fi &&
         pm2 restart strapi-test-dev"
